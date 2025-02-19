@@ -4,6 +4,7 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 import requests
+import os
 
 # Cargar los datos de ventas
 df = pd.read_csv('https://raw.githubusercontent.com/Hector-DAM/ventas/refs/heads/main/ventas_por_region.csv')
@@ -175,4 +176,5 @@ def actualizar_mapa_y_tabla(year1, year2, mes_seleccionado, metric_seleccionada)
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    port = int(os.environ.get("PORT", 8080))  # Obtiene el puerto de Render o usa 8080 por defecto
+    app.run_server(host="0.0.0.0", port=port)
