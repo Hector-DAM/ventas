@@ -6,7 +6,7 @@ import plotly.express as px
 import requests
 
 # Cargar los datos de ventas
-df = pd.read_csv('ventas_por_region.csv')
+df = pd.read_csv('https://raw.githubusercontent.com/Hector-DAM/ventas/refs/heads/main/ventas_por_region.csv')
 
 # Reemplazar los nombres de los estados
 nombres_estados = {
