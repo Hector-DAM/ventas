@@ -4,7 +4,6 @@ from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 import requests
-from prophet import Prophet
 
 # Cargar los datos de ventas
 df = pd.read_csv('ventas_por_region.csv')
@@ -53,6 +52,7 @@ nombres_estados = {
 
 # Reemplazar los nombres de los estados en la columna 'final_region'
 df["final_region"] = df["final_region"].replace(nombres_estados)
+
 
 # Descargar el archivo GeoJSON desde la URL
 geojson_url = "https://raw.githubusercontent.com/angelnmara/geojson/refs/heads/master/mexicoHigh.json"
@@ -122,9 +122,7 @@ app.layout = html.Div([
         data=[],
         style_table={"width": "50%", "margin": "auto"},
         style_cell={"textAlign": "center"}
-    ),
-    html.H3("Predicción de Ventas hasta 2025", style={"textAlign": "center"}),
-    dcc.Graph(id="prediccion-ventas", style={"height": "60vh"})
+    )
 ])
 
 # Callback para actualizar el mapa y la tabla
@@ -174,37 +172,6 @@ def actualizar_mapa_y_tabla(year1, year2, mes_seleccionado, metric_seleccionada)
     top5_data["metric"] = top5_data["metric"].round(2)  # Redondear a 2 decimales
 
     return fig, top5_data.to_dict("records")
-
-# Callback para actualizar la predicción de ventas
-@app.callback(
-    Output("prediccion-ventas", "figure"),
-    [Input("metric-selector", "value")]
-)
-def actualizar_prediccion(metric_seleccionada):
-    # Agrupar los datos por mes y año
-    df['date'] = pd.to_datetime(df['year'].astype(str) + '-' + df['month_num'].astype(str).str.zfill(2) + '-01')
-    df_grouped = df.groupby('date', as_index=False)[metric_seleccionada].sum()
-
-    # Preparar los datos para Prophet
-    df_prophet = df_grouped.rename(columns={'date': 'ds', metric_seleccionada: 'y'})
-
-    # Entrenar el modelo Prophet
-    model = Prophet()
-    model.fit(df_prophet)
-
-    # Crear un DataFrame con fechas futuras hasta 2025
-    future = model.make_future_dataframe(periods=24, freq='M')  # 24 meses = 2 años (hasta 2025)
-
-    # Realizar la predicción
-    forecast = model.predict(future)
-
-    # Crear el gráfico de predicción
-    fig = px.line(forecast, x='ds', y='yhat', title=f"Predicción de {metric_seleccionada} hasta 2025")
-    fig.update_traces(line_color='blue', name='Predicción')
-    fig.add_scatter(x=df_prophet['ds'], y=df_prophet['y'], mode='lines', name='Datos Históricos', line=dict(color='red'))
-    fig.update_layout(xaxis_title='Fecha', yaxis_title=metric_seleccionada)
-
-    return fig
 
 # Ejecutar la aplicación
 if __name__ == "__main__":
