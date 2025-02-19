@@ -6,4 +6,3 @@ plotly==5.18.0
 requests==2.31.0
 cmdstanpy==1.0.8
 pystan==2.19.1.1
-prophet==1.1.5
